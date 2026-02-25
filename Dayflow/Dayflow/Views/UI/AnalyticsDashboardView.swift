@@ -30,6 +30,7 @@ struct AnalyticsDashboardView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
                         dateRangeSelector
+                        timeBreakdownBar
                         summaryBar
                         categoryBreakdownSection
                         focusTrendSection
@@ -109,15 +110,32 @@ struct AnalyticsDashboardView: View {
         }
     }
 
+    // MARK: - Time Breakdown Bar
+
+    private var timeBreakdownBar: some View {
+        HStack(spacing: 12) {
+            summaryCard(
+                title: "Tracked",
+                value: formatDuration(viewModel.timeBreakdown?.trackedSeconds ?? 0),
+                color: Color(hex: "22C55E")
+            )
+            summaryCard(
+                title: "Not Tracked",
+                value: formatDuration(viewModel.timeBreakdown?.notTrackedSeconds ?? 0),
+                color: Color(hex: "F96E00")
+            )
+            summaryCard(
+                title: "Machine Off",
+                value: formatDuration(viewModel.timeBreakdown?.machineOffSeconds ?? 0),
+                color: Color(hex: "A0AEC0")
+            )
+        }
+    }
+
     // MARK: - Summary Bar
 
     private var summaryBar: some View {
         HStack(spacing: 12) {
-            summaryCard(
-                title: "Tracked",
-                value: formatDuration(viewModel.summary?.totalTrackedSeconds ?? 0),
-                color: Color(hex: "F96E00")
-            )
             summaryCard(
                 title: "Productive",
                 value: formatDuration(viewModel.summary?.productiveSeconds ?? 0),
@@ -127,6 +145,11 @@ struct AnalyticsDashboardView: View {
                 title: "Distracted",
                 value: formatDuration(viewModel.summary?.distractedSeconds ?? 0),
                 color: Color(hex: "FF5950")
+            )
+            summaryCard(
+                title: "Idle",
+                value: formatDuration(viewModel.summary?.idleSeconds ?? 0),
+                color: Color(hex: "A0AEC0")
             )
             focusScoreCard
         }

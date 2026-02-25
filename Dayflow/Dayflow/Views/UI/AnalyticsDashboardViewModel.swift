@@ -29,6 +29,7 @@ final class AnalyticsDashboardViewModel: ObservableObject {
     @Published var customEndDate: Date = Date()
 
     @Published var summary: AnalyticsSummary?
+    @Published var timeBreakdown: TimeBreakdown?
     @Published var categoryBreakdown: [CategoryBreakdown] = []
     @Published var focusTrend: [DailyFocusPoint] = []
     @Published var hourlyDistractions: [HourlyDistraction] = []
@@ -86,6 +87,7 @@ final class AnalyticsDashboardViewModel: ObservableObject {
 
         Task.detached { [weak self] in
             let summary = svc.fetchSummaryWithDelta(from: start, to: end)
+            let timeBreakdown = svc.fetchTimeBreakdown(from: start, to: end)
             let breakdown = svc.fetchCategoryBreakdown(from: start, to: end)
             let trend = svc.fetchDailyFocusTrend(from: start, to: end)
             let hourly = svc.fetchHourlyDistractions(from: start, to: end)
@@ -95,6 +97,7 @@ final class AnalyticsDashboardViewModel: ObservableObject {
             await MainActor.run {
                 guard let self else { return }
                 self.summary = summary
+                self.timeBreakdown = timeBreakdown
                 self.categoryBreakdown = breakdown
                 self.focusTrend = trend
                 self.hourlyDistractions = hourly

@@ -16,6 +16,12 @@ struct AnalyticsSummary {
     let previousPeriodFocusScore: Double? // for delta comparison
 }
 
+struct TimeBreakdown {
+    let trackedSeconds: Double          // Time covered by timeline cards
+    let notTrackedSeconds: Double       // Machine on but no card covers it
+    let machineOffSeconds: Double       // Gaps in screenshots (machine sleep/lock/off)
+}
+
 struct CategoryBreakdown: Identifiable {
     let id = UUID()
     let category: String
@@ -255,6 +261,53 @@ final class AnalyticsDataService {
             currentStreak: currentStreak,
             bestStreak: bestStreak,
             weeklyConsistencyScore: consistency
+        )
+    }
+
+    // MARK: - Time Breakdown (Tracked / Not Tracked / Machine Off)
+
+    /// Screenshot gap threshold in seconds. Gaps larger than this mean the machine was off/asleep.
+    private let machineOffGapThreshold: Double = 60
+
+    func fetchTimeBreakdown(from startDate: Date, to endDate: Date) -> TimeBreakdown {
+        let startTs = Int(startDate.timeIntervalSince1970)
+        let endTs = Int(endDate.timeIntervalSince1970)
+
+        // 1. Get all screenshots in range to determine when machine was on
+        let screenshots = store.fetchScreenshotsInTimeRange(startTs: startTs, endTs: endTs)
+
+        guard screenshots.count >= 2 else {
+            // Not enough data
+            let cards = store.fetchTimelineCardsByTimeRange(from: startDate, to: endDate)
+            let tracked = cards.reduce(0.0) { $0 + cardDuration($1) }
+            return TimeBreakdown(trackedSeconds: tracked, notTrackedSeconds: 0, machineOffSeconds: 0)
+        }
+
+        // 2. Compute "machine on" time by summing intervals between consecutive screenshots
+        //    where the gap is <= threshold
+        var machineOnSeconds: Double = 0
+        var machineOffSeconds: Double = 0
+
+        for i in 1..<screenshots.count {
+            let gap = Double(screenshots[i].capturedAt - screenshots[i - 1].capturedAt)
+            if gap <= machineOffGapThreshold {
+                machineOnSeconds += gap
+            } else {
+                machineOffSeconds += gap
+            }
+        }
+
+        // 3. Get tracked time from timeline cards
+        let cards = store.fetchTimelineCardsByTimeRange(from: startDate, to: endDate)
+        let tracked = cards.reduce(0.0) { $0 + cardDuration($1) }
+
+        // 4. Not tracked = machine was on but no card covers it
+        let notTracked = max(0, machineOnSeconds - tracked)
+
+        return TimeBreakdown(
+            trackedSeconds: tracked,
+            notTrackedSeconds: notTracked,
+            machineOffSeconds: machineOffSeconds
         )
     }
 
