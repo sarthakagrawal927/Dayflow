@@ -35,7 +35,7 @@ final class AnalysisManager: AnalysisManaging {
 
     // Video Processing Constants - removed old summary generation
 
-    private let checkInterval: TimeInterval = 60          // every minute
+    private let checkInterval: TimeInterval = AnalysisFrequencyPreset.load().checkInterval
     private let maxLookback: TimeInterval   = 24*60*60    // only last 24h
     // Note: target batch duration and max gap are controlled via llmService.batchingConfig.
 

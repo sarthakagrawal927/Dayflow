@@ -25,6 +25,12 @@ final class OtherSettingsViewModel: ObservableObject {
         }
     }
     @Published var outputLanguageOverride: String
+    @Published var frequencyPreset: AnalysisFrequencyPreset {
+        didSet {
+            guard frequencyPreset != oldValue else { return }
+            frequencyPreset.save()
+        }
+    }
     @Published var isOutputLanguageOverrideSaved: Bool = true
 
     @Published var exportStartDate: Date
@@ -38,6 +44,7 @@ final class OtherSettingsViewModel: ObservableObject {
         showDockIcon = UserDefaults.standard.object(forKey: "showDockIcon") as? Bool ?? true
         showTimelineAppIcons = UserDefaults.standard.object(forKey: "showTimelineAppIcons") as? Bool ?? true
         outputLanguageOverride = LLMOutputLanguagePreferences.override
+        frequencyPreset = AnalysisFrequencyPreset.load()
         exportStartDate = timelineDisplayDate(from: Date())
         exportEndDate = timelineDisplayDate(from: Date())
     }

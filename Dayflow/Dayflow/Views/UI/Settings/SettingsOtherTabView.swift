@@ -16,6 +16,33 @@ struct SettingsOtherTabView: View {
         VStack(alignment: .leading, spacing: 28) {
             timelineExportCard
 
+            SettingsCard(title: "Analysis frequency", subtitle: "How often Dayflow analyzes your screen") {
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(AnalysisFrequencyPreset.allCases, id: \.self) { preset in
+                        HStack(spacing: 12) {
+                            Image(systemName: viewModel.frequencyPreset == preset ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 16))
+                                .foregroundColor(viewModel.frequencyPreset == preset ? Color(hex: "F96E00") : .black.opacity(0.3))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(preset.displayName)
+                                    .font(.custom("Nunito", size: 13))
+                                    .foregroundColor(.black.opacity(0.7))
+                                Text(preset.description)
+                                    .font(.custom("Nunito", size: 11.5))
+                                    .foregroundColor(.black.opacity(0.5))
+                            }
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
+                        .pointingHandCursor()
+                        .onTapGesture { viewModel.frequencyPreset = preset }
+                    }
+                    Text("Restart Dayflow after changing for the new interval to take effect.")
+                        .font(.custom("Nunito", size: 11.5))
+                        .foregroundColor(.black.opacity(0.5))
+                }
+            }
+
             SettingsCard(title: "App preferences", subtitle: "General toggles and telemetry settings") {
                 VStack(alignment: .leading, spacing: 14) {
                     Toggle(isOn: Binding(

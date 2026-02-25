@@ -181,11 +181,9 @@ struct BatchingConfig {
     let maxGap: TimeInterval
     let cardLookbackDuration: TimeInterval
 
-    static let standard = BatchingConfig(
-        targetDuration: 15 * 60,      // 15-minute analysis batches
-        maxGap: 2 * 60,               // Split batches if gap exceeds 2 minutes
-        cardLookbackDuration: 45 * 60 // Build cards with a 45-minute lookback window
-    )
+    static var standard: BatchingConfig {
+        AnalysisFrequencyPreset.load().batchingConfig
+    }
 }
 
 
