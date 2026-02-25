@@ -99,6 +99,7 @@ extension MainView {
                 case .timeline: tabName = "timeline"
                 case .dashboard: tabName = "dashboard"
                 case .journal: tabName = "journal"
+                case .analytics: tabName = "analytics"
                 case .bug: tabName = "bug_report"
                 case .settings: tabName = "settings"
                 }
@@ -280,6 +281,9 @@ extension MainView {
                     .padding(15)
             case .journal:
                 JournalView()
+                    .padding(15)
+            case .analytics:
+                AnalyticsDashboardView()
                     .padding(15)
             case .bug:
                 BugReportView()
